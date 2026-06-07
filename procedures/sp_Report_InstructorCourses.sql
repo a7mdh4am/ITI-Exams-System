@@ -1,7 +1,8 @@
 --Ashraf_mohamed
 
 CREATE OR REPLACE PROCEDURE sp_Report_InstructorCourses(
-    p_instructor_id INT
+    p_instructor_id INT,
+    INOUT p_cursor REFCURSOR DEFAULT 'instructor_courses_cursor'
 )
 LANGUAGE plpgsql
 AS $$
@@ -9,7 +10,9 @@ AS $$
   Purpose    : Returns all courses taught by an instructor with enrolled student count.
   Parameters :
     p_instructor_id - The InstructorID to report on
-  Returns    : CourseName, TrackName, BranchName, StudentCount
+    p_cursor        - OPEN'ed for the result set; caller FETCHes from it
+                      (within the same transaction) to read:
+                      CourseID, CourseName, TrackName, BranchName, StudentCount
 */
 BEGIN
 
@@ -22,19 +25,20 @@ BEGIN
     END IF;
 
     -- Report: courses + student count per course
-    SELECT
-        c.CourseID,
-        c.CourseName,
-        t.TrackName,
-        b.BranchName,
-        COUNT(s.StudentID)  AS StudentCount
-    FROM       Course      c
-    JOIN       Track       t  ON c.TrackID  = t.TrackID
-    JOIN       Branch      b  ON t.BranchID = b.BranchID
-    LEFT JOIN  Student     s  ON s.TrackID  = c.TrackID   -- students enrolled in same track
-    WHERE      c.InstructorID = p_instructor_id
-    GROUP BY   c.CourseID, c.CourseName, t.TrackName, b.BranchName
-    ORDER BY   c.CourseName;
+    OPEN p_cursor FOR
+        SELECT
+            c.CourseID,
+            c.CourseName,
+            t.TrackName,
+            b.BranchName,
+            COUNT(s.StudentID)  AS StudentCount
+        FROM       Course      c
+        JOIN       Track       t  ON c.TrackID  = t.TrackID
+        JOIN       Branch      b  ON t.BranchID = b.BranchID
+        LEFT JOIN  Student     s  ON s.TrackID  = c.TrackID   -- students enrolled in same track
+        WHERE      c.InstructorID = p_instructor_id
+        GROUP BY   c.CourseID, c.CourseName, t.TrackName, b.BranchName
+        ORDER BY   c.CourseName;
 
 END;
 $$;

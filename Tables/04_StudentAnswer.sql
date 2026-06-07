@@ -1,6 +1,6 @@
 -- @a7mdh4am
 CREATE TABLE StudentAnswer (
-    AnswerID INT PRIMARY KEY AUTO_INCREMENT,
+    AnswerID SERIAL PRIMARY KEY,
     StudentExamID INT NOT NULL,
     ExamQID INT NOT NULL,
     ChosenOptionID INT NOT NULL,

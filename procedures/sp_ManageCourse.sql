@@ -5,7 +5,8 @@ CREATE OR REPLACE PROCEDURE sp_ManageCourse(
     p_course_id     INT     DEFAULT NULL,
     p_course_name   VARCHAR(100) DEFAULT NULL,
     p_track_id      INT     DEFAULT NULL,
-    p_instructor_id INT     DEFAULT NULL
+    p_instructor_id INT     DEFAULT NULL,
+    INOUT p_cursor  REFCURSOR DEFAULT 'course_cursor'
 )
 LANGUAGE plpgsql
 AS $$
@@ -13,10 +14,13 @@ AS $$
   Purpose    : Full CRUD operations for the Course table.
   Parameters :
     p_action        - Operation to perform: INSERT | UPDATE | DELETE | GET
-    p_course_id     - Required for UPDATE, DELETE, GET
+    p_course_id     - Required for UPDATE, DELETE; optional filter for GET
     p_course_name   - Course name (INSERT / UPDATE)
     p_track_id      - FK to Track (INSERT / UPDATE)
     p_instructor_id - FK to Instructor (INSERT / UPDATE)
+    p_cursor        - For GET only: OPEN'ed for the result set; caller FETCHes
+                      from it (within the same transaction) to read:
+                      CourseID, CourseName, TrackName, InstructorName
 */
 BEGIN
 
@@ -100,20 +104,22 @@ BEGIN
 
         IF p_course_id IS NOT NULL THEN
             -- Get single course
-            SELECT c.CourseID, c.CourseName,
-                   t.TrackName, i.FullName AS InstructorName
-            FROM   Course c
-            JOIN   Track      t ON c.TrackID      = t.TrackID
-            JOIN   Instructor i ON c.InstructorID = i.InstructorID
-            WHERE  c.CourseID = p_course_id;
+            OPEN p_cursor FOR
+                SELECT c.CourseID, c.CourseName,
+                       t.TrackName, i.FullName AS InstructorName
+                FROM   Course c
+                JOIN   Track      t ON c.TrackID      = t.TrackID
+                JOIN   Instructor i ON c.InstructorID = i.InstructorID
+                WHERE  c.CourseID = p_course_id;
         ELSE
             -- Get all courses
-            SELECT c.CourseID, c.CourseName,
-                   t.TrackName, i.FullName AS InstructorName
-            FROM   Course c
-            JOIN   Track      t ON c.TrackID      = t.TrackID
-            JOIN   Instructor i ON c.InstructorID = i.InstructorID
-            ORDER  BY c.CourseID;
+            OPEN p_cursor FOR
+                SELECT c.CourseID, c.CourseName,
+                       t.TrackName, i.FullName AS InstructorName
+                FROM   Course c
+                JOIN   Track      t ON c.TrackID      = t.TrackID
+                JOIN   Instructor i ON c.InstructorID = i.InstructorID
+                ORDER  BY c.CourseID;
         END IF;
 
     ELSE
