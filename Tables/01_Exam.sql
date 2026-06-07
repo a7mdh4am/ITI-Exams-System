@@ -1,7 +1,8 @@
-CREATE TABLE Exam{
+-- @a7mdh4am
+CREATE TABLE Exam (
     ExamID INT PRIMARY KEY AUTO_INCREMENT,
-    ExamName NVARCHAR(200) NOT NULL,
+    ExamName NVARCHAR (200) NOT NULL,
     CourseID INT NOT NULL,
     ExamDate DATE NOT NULL,
-    FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
-}
+    FOREIGN KEY (CourseID) REFERENCES Course (CourseID)
+)

@@ -1,3 +1,4 @@
+-- @a7mdh4am
 CREATE TABLE AuditLog (
     LogID INT PRIMARY KEY AUTO_INCREMENT,
     TableName NVARCHAR (100) NOT NULL,
