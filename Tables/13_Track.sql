@@ -1,0 +1,8 @@
+--@Zyad_ashraf
+
+CREATE TABLE Track (
+    TrackID SERIAL PRIMARY KEY,
+    TrackName VARCHAR(100) NOT NULL,
+    BranchID INT NOT NULL,
+    CONSTRAINT FK_Track_Branch FOREIGN KEY (BranchID) REFERENCES Branch (BranchID) ON DELETE CASCADE
+);
