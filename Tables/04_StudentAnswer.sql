@@ -6,5 +6,5 @@ CREATE TABLE StudentAnswer{
     Grade DECIMAL(6,2),
     FOREIGN KEY (StudentExamID) REFERENCES StudentExam(StudentExamID),
     FOREIGN KEY (ExamQID) REFERENCES ExamQuestion(ExamQID),
-    FOREIGN KEY (ChosenOptionID) REFERENCES Option(OptionID)
+    FOREIGN KEY (ChosenOptionID) REFERENCES QuestionOption(OptionID)
 }
